@@ -1,0 +1,1734 @@
+############################################################
+## NON-CARCINOGENIC RISK ASSESSMENT: HAZARD QUOTIENT (HQ) ##
+############################################################
+
+setwd("E:/Students/MSc 2024/Natyada/Analysis")
+dat <- read.csv("VOC data.csv")
+dat$date <- as.Date(dat$date,"%Y-%m-%d")
+
+dat$time <- format(dat$date, "%Y-%m") ## CREATE ONLY MONTH AND YEAR
+dat <- aggregate(dat[,4:12], list(dat$no, dat$station, dat$time), mean, na.rm = TRUE)
+dat <- dat[order(dat$Group.1),]
+names(dat)[1:3] <- c("nstation","station","date")
+
+names(dat)[c(4,5,8,11)] <- c("Vinyl chloride","1,3-Butadiene","1,2-Dichloroethane","1,2-Dichloropropane")
+dat$date <- as.Date(paste0(dat$date, "-01"))
+
+library(MASS)
+
+##
+## VINYL CHLORIDE
+##
+set.seed(123)
+
+## ESTIMATE PARAMETERS FROM VINYL CHLORIDE DATA
+mu <- mean(log(dat$`Vinyl chloride`), na.rm = TRUE)
+sd <- sd(log(dat$`Vinyl chloride`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQvinyl <- as.data.frame(sim/100) # RfC = 0.1 mg/m3 = 100 ug/m3
+names(HQvinyl) <- "HQ"
+emcumul <- ecdf(HQvinyl$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQvinyl$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQvinyl$HQ), Min = min(HQvinyl$HQ), Median = median(HQvinyl$HQ), CI = quantile(HQvinyl$HQ, 0.025), 
+              CI = quantile(HQvinyl$HQ, 0.975), Max = max(HQvinyl$HQ), SD = sd(HQvinyl$HQ), Q1 = quantile(HQvinyl$HQ, 0.25), Q3 = quantile(HQvinyl$HQ, 0.75))
+HQ_stats
+
+
+##
+## 1,3-BUTADIENE
+##
+set.seed(234)
+
+## ESTIMATE PARAMETERS FROM 1,3-BUTADIENE DATA
+mu <- mean(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+sd <- sd(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQ13buta <- as.data.frame(sim/2) # RfC = 0.002 mg/m3 = 2 ug/m3
+names(HQ13buta) <- "HQ"
+emcumul <- ecdf(HQ13buta$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQ13buta$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQ13buta$HQ), Min = min(HQ13buta$HQ), Median = median(HQ13buta$HQ), CI = quantile(HQ13buta$HQ, 0.025), 
+              CI = quantile(HQ13buta$HQ, 0.975), Max = max(HQ13buta$HQ), SD = sd(HQ13buta$HQ), Q1 = quantile(HQ13buta$HQ, 0.25), Q3 = quantile(HQ13buta$HQ, 0.75))
+HQ_stats
+
+
+##
+## DICHLOROMETHANE
+##
+set.seed(345)
+
+## ESTIMATE PARAMETERS FROM DICHLOROMETHANE DATA
+mu <- mean(log(dat$Dichloromethane), na.rm = TRUE)
+sd <- sd(log(dat$Dichloromethane), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQdichloro <- as.data.frame(sim/600) # RfC = 0.6 mg/m3 = 600 ug/m3
+names(HQdichloro) <- "HQ"
+emcumul <- ecdf(HQdichloro$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQdichloro$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQdichloro$HQ), Min = min(HQdichloro$HQ), Median = median(HQdichloro$HQ), CI = quantile(HQdichloro$HQ, 0.025), 
+              CI = quantile(HQdichloro$HQ, 0.975), Max = max(HQdichloro$HQ), SD = sd(HQdichloro$HQ), Q1 = quantile(HQdichloro$HQ, 0.25), Q3 = quantile(HQdichloro$HQ, 0.75))
+HQ_stats
+
+
+##
+## 1,2-DICHLOROETHANE
+##
+set.seed(456)
+
+## ESTIMATE PARAMETERS FROM 1,2-DICHLOROETHANE DATA
+mu <- mean(log(dat$`1,2-Dichloroethane`), na.rm = TRUE)
+sd <- sd(log(dat$`1,2-Dichloroethane`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQ12dichloro <- as.data.frame(sim/7) # RfC = 0.007 mg/m3 = 7 ug/m3
+names(HQ12dichloro) <- "HQ"
+emcumul <- ecdf(HQ12dichloro$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQ12dichloro$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQ12dichloro$HQ), Min = min(HQ12dichloro$HQ), Median = median(HQ12dichloro$HQ), CI = quantile(HQ12dichloro$HQ, 0.025), 
+              CI = quantile(HQ12dichloro$HQ, 0.975), Max = max(HQ12dichloro$HQ), SD = sd(HQ12dichloro$HQ), Q1 = quantile(HQ12dichloro$HQ, 0.25), 
+              Q3 = quantile(HQ12dichloro$HQ, 0.75))
+HQ_stats
+
+
+##
+## BENZENE
+##
+set.seed(567)
+
+## ESTIMATE PARAMETERS FROM BENZENE DATA
+mu <- mean(log(dat$Benzene), na.rm = TRUE)
+sd <- sd(log(dat$Benzene), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQbenzene <- as.data.frame(sim/30) # RfC = 0.03 mg/m3 = 30 ug/m3
+names(HQbenzene) <- "HQ"
+emcumul <- ecdf(HQbenzene$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQbenzene$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQbenzene$HQ), Min = min(HQbenzene$HQ), Median = median(HQbenzene$HQ), CI = quantile(HQbenzene$HQ, 0.025), CI = quantile(HQbenzene$HQ, 0.975), 
+              Max = max(HQbenzene$HQ), SD = sd(HQbenzene$HQ), Q1 = quantile(HQbenzene$HQ, 0.25), Q3 = quantile(HQbenzene$HQ, 0.75))
+HQ_stats
+
+
+##
+## TRICHLOROETHYLENE
+##
+set.seed(678)
+
+## ESTIMATE PARAMETERS FROM TRICHLOROETHYLENE DATA
+mu <- mean(log(dat$Trichloroethylene), na.rm = TRUE)
+sd <- sd(log(dat$Trichloroethylene), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQtrichloro <- as.data.frame(sim/2) # RfC = 0.002 mg/m3 = 2 ug/m3
+names(HQtrichloro) <- "HQ"
+emcumul <- ecdf(HQtrichloro$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQtrichloro$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQtrichloro$HQ), Min = min(HQtrichloro$HQ), Median = median(HQtrichloro$HQ), CI = quantile(HQtrichloro$HQ, 0.025), 
+              CI = quantile(HQtrichloro$HQ, 0.975), Max = max(HQtrichloro$HQ), SD = sd(HQtrichloro$HQ), Q1 = quantile(HQtrichloro$HQ, 0.25), 
+              Q3 = quantile(HQtrichloro$HQ, 0.75))
+HQ_stats
+
+
+##
+## 1,2-DICHLOROPROPANE
+##
+set.seed(789)
+
+## ESTIMATE PARAMETERS FROM 1,2-DICHLOROPROPANE DATA
+mu <- mean(log(dat$`1,2-Dichloropropane`), na.rm = TRUE)
+sd <- sd(log(dat$`1,2-Dichloropropane`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQ12dichlorop <- as.data.frame(sim/4) # RfC = 0.004 mg/m3 = 4 ug/m3
+names(HQ12dichlorop) <- "HQ"
+emcumul <- ecdf(HQ12dichlorop$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQ12dichlorop$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQ12dichlorop$HQ), Min = min(HQ12dichlorop$HQ), Median = median(HQ12dichlorop$HQ), CI = quantile(HQ12dichlorop$HQ, 0.025), 
+              CI = quantile(HQ12dichlorop$HQ, 0.975), Max = max(HQ12dichlorop$HQ), SD = sd(HQ12dichlorop$HQ), Q1 = quantile(HQ12dichlorop$HQ, 0.25),
+              Q3 = quantile(HQ12dichlorop$HQ, 0.75))
+HQ_stats
+
+
+##
+## TETRACHLOROETHYLENE
+##
+set.seed(890)
+
+## ESTIMATE PARAMETERS FROM TETRACHLOROETHYLENE DATA
+mu <- mean(log(dat$Tetrachloroethylene), na.rm = TRUE)
+sd <- sd(log(dat$Tetrachloroethylene), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+sim <- con*ET*EF
+
+## HQ PER ITERATION
+HQtetrachloro <- as.data.frame(sim/40) # RfC = 0.04 mg/m3 = 40 ug/m3
+names(HQtetrachloro) <- "HQ"
+emcumul <- ecdf(HQtetrachloro$HQ) ## CUMULATIVE PROBABILITY DISTRIBUTION
+
+## HQ STATUSTUCS
+mean(HQtetrachloro$HQ>=1)*100 ## HOW MANY PERCENT HQ>1?
+HQ_stats <- c(Mean = mean(HQtetrachloro$HQ), Min = min(HQtetrachloro$HQ), Median = median(HQtetrachloro$HQ), CI = quantile(HQtetrachloro$HQ, 0.025), 
+              CI = quantile(HQtetrachloro$HQ, 0.975), Max = max(HQtetrachloro$HQ), SD = sd(HQtetrachloro$HQ), Q1 = quantile(HQtetrachloro$HQ, 0.25),
+              Q3 = quantile(HQtetrachloro$HQ, 0.75))
+HQ_stats
+
+
+##
+## COMBINE ALL COMPOUNDS
+##
+hqvoc <- do.call(rbind, list(data.frame(Group = "Vinyl chloride", HQvinyl), data.frame(Group = "1,3-Butadiene", HQ13buta), data.frame(Group = "Dichloromethane", HQdichloro),
+                             data.frame(Group = "1,2-Dichloroethane", HQ12dichloro), data.frame(Group = "Benzene", HQbenzene), 
+                             data.frame(Group = "Trichloroethylene", HQtrichloro), data.frame(Group = "1,2-Dichloropropane", HQ12dichlorop), 
+                             data.frame(Group = "Tetrachloroethylene", HQtetrachloro)))
+names(hqvoc)[] <- c("compound","hq")
+
+##
+## HISTOGRAM FOR PROBABILITY DISTRIBUTION
+##
+library(ggplot2); library(dplyr); library(gridExtra)
+
+compound_name <- "1,2-Dichloropropane"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+hqvoc_cdf_sub <- hqvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.4)
+a <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 0.1), ylim = c(0, 0.4)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 0.084, y = Inf, label = "P50 = 0.0019", vjust = 05, size = 7) +
+  annotate("text", x = 0.084, y = Inf, label = "P90 = 0.0088", vjust = 07, size = 7) +
+  annotate("text", x = 0.084, y = Inf, label = "P95 = 0.0136", vjust = 09, size = 7) +
+  annotate("text", x = 0.084, y = Inf, label = "P99 = 0.0354", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.4, 0.1), labels = function(x) sprintf("%.2f", x / 0.4)) + 
+  labs(x = "Hazard Quotient (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "1,3-Butadiene"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+b <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 22)) + theme_bw(base_size = 14) + 
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 18, y = Inf, label = "P50 = 0.0094", vjust = 05, size = 7) +
+  annotate("text", x = 18, y = Inf, label = "P90 = 0.1865", vjust = 07, size = 7) +
+  annotate("text", x = 18, y = Inf, label = "P95 = 0.4349", vjust = 09, size = 7) +
+  annotate("text", x = 18, y = Inf, label = "P99 = 3.3016", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  labs(x = "Hazard Quotient (Unitless)", y = "Probability") + theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Benzene"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+hqvoc_cdf_sub <- hqvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.15)
+c <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 0.61), ylim = c(0, 0.15)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 0.52, y = Inf, label = "P50 = 0.0452", vjust = 05, size = 7) +
+  annotate("text", x = 0.52, y = Inf, label = "P90 = 0.0127", vjust = 07, size = 7) +
+  annotate("text", x = 0.52, y = Inf, label = "P95 = 0.1698", vjust = 09, size = 7) +
+  annotate("text", x = 0.52, y = Inf, label = "P99 = 0.2691", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.15, 0.03), labels = function(x) sprintf("%.2f", x / 0.15)) + 
+  labs(x = "Hazard Quotient (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Trichloroethylene"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+hqvoc_cdf_sub <- hqvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.3)
+d <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 0.04), ylim = c(0, 0.3)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 0.0335, y = Inf, label = "P50 = 0.0019", vjust = 05, size = 7) +
+  annotate("text", x = 0.0335, y = Inf, label = "P90 = 0.0069", vjust = 07, size = 7) +
+  annotate("text", x = 0.0335, y = Inf, label = "P95 = 0.0096", vjust = 09, size = 7) +
+  annotate("text", x = 0.0335, y = Inf, label = "P99 = 0.0190", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.3, 0.05), labels = function(x) sprintf("%.2f", x / 0.3)) + 
+  labs(x = "Hazard Quotient (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Vinyl chloride"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+e <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 0.3)) + theme_bw(base_size = 14) + 
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 0.252, y = Inf, label = "P50 = 0.0002", vjust = 05, size = 7) +
+  annotate("text", x = 0.252, y = Inf, label = "P90 = 0.0033", vjust = 07, size = 7) +
+  annotate("text", x = 0.252, y = Inf, label = "P95 = 0.0079", vjust = 09, size = 7) +
+  annotate("text", x = 0.252, y = Inf, label = "P99 = 0.0392", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  labs(x = "Hazard Quotient (Unitless)", y = "Probability") + theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Dichloromethane"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+hqvoc_cdf_sub <- hqvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.3)
+f <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 0.05), ylim = c(0, 0.3)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 0.0409, y = Inf, label = "P50 = 0.0015", vjust = 05, size = 7) +
+  annotate("text", x = 0.0409, y = Inf, label = "P90 = 0.0075", vjust = 07, size = 7) +
+  annotate("text", x = 0.0409, y = Inf, label = "P95 = 0.0108", vjust = 09, size = 7) +
+  annotate("text", x = 0.0409, y = Inf, label = "P99 = 0.0210", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.3, 0.05), labels = function(x) sprintf("%.2f", x / 0.3)) + 
+  labs(x = "Hazard Quotient (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Tetrachloroethylene"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+hqvoc_cdf_sub <- hqvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.25)
+g <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 0.003), ylim = c(0, 0.25)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 0.00255, y = Inf, label = "P50 = 0.0002", vjust = 05, size = 7) +
+  annotate("text", x = 0.00255, y = Inf, label = "P90 = 0.0005", vjust = 07, size = 7) +
+  annotate("text", x = 0.00255, y = Inf, label = "P95 = 0.0006", vjust = 09, size = 7) +
+  annotate("text", x = 0.00255, y = Inf, label = "P99 = 0.0011", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.25, 0.05), labels = function(x) sprintf("%.2f", x / 0.25)) + 
+  labs(x = "Hazard Quotient (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "1,2-Dichloroethane"
+hqvoc_sub <- hqvoc %>% filter(compound == compound_name)
+hqvoc_cdf_sub <- hqvoc_sub %>% arrange(hq) %>% mutate(cum_prob = row_number()/n())
+h <- ggplot(hqvoc_sub, aes(x = hq)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "blue", color = "white", alpha = 0.7) +
+  geom_step(data = hqvoc_cdf_sub, aes(y = cum_prob), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 6)) + theme_bw(base_size = 14) + 
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 5.05, y = Inf, label = "P50 = 0.0115", vjust = 05, size = 7) +
+  annotate("text", x = 5.05, y = Inf, label = "P90 = 0.1462", vjust = 07, size = 7) +
+  annotate("text", x = 5.05, y = Inf, label = "P95 = 0.3278", vjust = 09, size = 7) +
+  annotate("text", x = 5.05, y = Inf, label = "P99 = 1.1673", vjust = 11, size = 7) +
+  geom_vline(xintercept = quantile(hqvoc_sub$hq, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "red") +
+  labs(x = "Hazard Quotient (Unitless)", y = "Probability") + theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+tiff("HQ.tif", units = "in", width = 50.0, height = 25.0, res = 200)
+grid.arrange(a,b,c,d,e,f,g,h, ncol = 4)
+dev.off()
+
+###############################################################################################################################################################################
+
+##################################
+## CARCINOGENIC RISK ASSESSMENT ##
+##################################
+
+setwd("E:/Students/MSc 2024/Natyada/Analysis")
+dat <- read.csv("VOC.csv")
+dat$date <- as.Date(dat$date,"%Y-%m-%d")
+
+dat$time <- format(dat$date, "%Y-%m") ## CREATE ONLY MONTH AND YEAR
+dat <- aggregate(dat[,4:12], list(dat$no, dat$station, dat$time), mean, na.rm = TRUE)
+dat <- dat[order(dat$Group.1),]
+names(dat)[1:3] <- c("nstation","station","date")
+
+names(dat)[c(4,5,8,11)] <- c("Vinyl chloride","1,3-Butadiene","1,2-Dichloroethane","1,2-Dichloropropane")
+dat$date <- as.Date(paste0(dat$date, "-01"))
+
+library(MASS)
+
+########################
+## CHILDREN RESIDENTS ##
+########################
+
+##
+## BENZENE
+##
+set.seed(123)
+
+## ESTIMATE PARAMETERS FROM BENZENE DATA
+mu <- mean(log(dat$Benzene), na.rm = TRUE)
+sd <- sd(log(dat$Benzene), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 6/70
+sim <- con*ET*EF*ED
+IUR <- runif(1000, min = 2.2e-6, max = 7.8e-6) # UNIFORM DISTRIBUTION WITH IUR = 2.2 x 10^-6 to 7.8 x 10^-6
+
+## CANCER RISK PER ITERATION
+CRbenzene1 <- as.data.frame(sim * IUR)
+names(CRbenzene1) <- "CR"
+
+## CR STATISTICS
+mean(CRbenzene1$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CRbenzene1$CR >= 1e-6 & CRbenzene1$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CRbenzene1$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CRbenzene1$CR), Min = min(CRbenzene1$CR), Median = median(CRbenzene1$CR), CI = quantile(CRbenzene1$CR, 0.025), CI = quantile(CRbenzene1$CR, 0.975), 
+              Max = max(CRbenzene1$CR), SD = sd(CRbenzene1$CR), Q1 = quantile(CRbenzene1$CR, 0.25), Q3 = quantile(CRbenzene1$CR, 0.75))
+CR_stats
+
+##
+## 1,3-BUTADIENE
+##
+set.seed(234)
+
+## ESTIMATE PARAMETERS FROM 1,3-BUTADIENE DATA
+mu <- mean(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+sd <- sd(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 6/70
+sim <- con*ET*EF*ED
+IUR <- 3.0e-5 # FIXED VALUE WITH IUR = 3.0 x 10^-5
+
+## CANCER RISK PER ITERATION
+CR13butadiene1 <- as.data.frame(sim * IUR)
+names(CR13butadiene1) <- "CR"
+
+## CR STATISTICS
+mean(CR13butadiene1$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CR13butadiene1$CR >= 1e-6 & CR13butadiene1$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CR13butadiene1$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CR13butadiene1$CR), Min = min(CR13butadiene1$CR), Median = median(CR13butadiene1$CR), CI = quantile(CR13butadiene1$CR, 0.025), 
+              CI = quantile(CR13butadiene1$CR, 0.975), Max = max(CR13butadiene1$CR), SD = sd(CR13butadiene1$CR), Q1 = quantile(CR13butadiene1$CR, 0.25), 
+              Q3 = quantile(CR13butadiene1$CR, 0.75))
+CR_stats
+
+
+##
+## TRICHLOROETHYLENE
+##
+set.seed(345)
+
+## ESTIMATE PARAMETERS FROM TRICHLOROETHYLENE DATA
+mu <- mean(log(dat$Trichloroethylene), na.rm = TRUE)
+sd <- sd(log(dat$Trichloroethylene), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 6/70
+sim <- con*ET*EF*ED
+IUR <- 4.8e-6 # FIXED VALUE WITH IUR = 4.8 x 10^-6
+
+## CANCER RISK PER ITERATION
+CRtrichloro1 <- as.data.frame(sim * IUR)
+names(CRtrichloro1) <- "CR"
+
+## CR STATISTICS
+mean(CRtrichloro1$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CRtrichloro1$CR >= 1e-6 & CRtrichloro1$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CRtrichloro1$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CRtrichloro1$CR), Min = min(CRtrichloro1$CR), Median = median(CRtrichloro1$CR), CI = quantile(CRtrichloro1$CR, 0.025), 
+              CI = quantile(CRtrichloro1$CR, 0.975), Max = max(CRtrichloro1$CR), SD = sd(CRtrichloro1$CR), Q1 = quantile(CRtrichloro1$CR, 0.25), 
+              Q3 = quantile(CRtrichloro1$CR, 0.75))
+CR_stats
+
+
+##
+## VINYL CHLORIDE (CONTINUOUS LIFETIME EXPOSURE FROM BIRTH)
+##
+set.seed(567)
+
+## ESTIMATE PARAMETERS FROM VINYL CHLORIDE DATA
+mu <- mean(log(dat$`Vinyl chloride`), na.rm = TRUE)
+sd <- sd(log(dat$`Vinyl chloride`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 6/70
+sim <- con*ET*EF*ED
+IUR <- 8.8e-6 # FIXED VALUE WITH IUR = 8.8 x 10^-6
+
+## CANCER RISK PER ITERATION
+CRvinylbirth1 <- as.data.frame(sim * IUR)
+names(CRvinylbirth1) <- "CR"
+
+## CR STATISTICS
+mean(CRvinylbirth1$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CRvinylbirth1$CR >= 1e-6 & CRvinylbirth1$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CRvinylbirth1$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CRvinylbirth1$CR), Min = min(CRvinylbirth1$CR), Median = median(CRvinylbirth1$CR), CI = quantile(CRvinylbirth1$CR, 0.025), 
+              CI = quantile(CRvinylbirth1$CR, 0.975), Max = max(CRvinylbirth1$CR), SD = sd(CRvinylbirth1$CR), Q1 = quantile(CRvinylbirth1$CR, 0.25), 
+              Q3 = quantile(CRvinylbirth1$CR, 0.75))
+CR_stats
+
+#####################
+## ADULT RESIDENTS ##
+#####################
+
+##
+## BENZENE
+##
+set.seed(123)
+
+## ESTIMATE PARAMETERS FROM BENZENE DATA
+mu <- mean(log(dat$Benzene), na.rm = TRUE)
+sd <- sd(log(dat$Benzene), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 30/70
+sim <- con*ET*EF*ED
+IUR <- runif(1000, min = 2.2e-6, max = 7.8e-6) # UNIFORM DISTRIBUTION WITH IUR = 2.2 x 10^-6 to 7.8 x 10^-6
+
+## CANCER RISK PER ITERATION
+CRbenzene2 <- as.data.frame(sim * IUR)
+names(CRbenzene2) <- "CR"
+
+## CR STATISTICS
+mean(CRbenzene2$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CRbenzene2$CR >= 1e-6 & CRbenzene2$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CRbenzene2$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CRbenzene2$CR), Min = min(CRbenzene2$CR), Median = median(CRbenzene2$CR), CI = quantile(CRbenzene2$CR, 0.025), CI = quantile(CRbenzene2$CR, 0.975), 
+              Max = max(CRbenzene2$CR), SD = sd(CRbenzene2$CR), Q1 = quantile(CRbenzene2$CR, 0.25), Q3 = quantile(CRbenzene2$CR, 0.75))
+CR_stats
+
+##
+## 1,3-BUTADIENE
+##
+set.seed(234)
+
+## ESTIMATE PARAMETERS FROM 1,3-BUTADIENE DATA
+mu <- mean(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+sd <- sd(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 30/70
+sim <- con*ET*EF*ED
+IUR <- 3.0e-5 # FIXED VALUE WITH IUR = 3.0 x 10^-5
+
+## CANCER RISK PER ITERATION
+CR13butadiene2 <- as.data.frame(sim * IUR)
+names(CR13butadiene2) <- "CR"
+
+## CR STATISTICS
+mean(CR13butadiene2$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CR13butadiene2$CR >= 1e-6 & CR13butadiene2$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CR13butadiene2$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CR13butadiene2$CR), Min = min(CR13butadiene2$CR), Median = median(CR13butadiene2$CR), CI = quantile(CR13butadiene2$CR, 0.025), 
+              CI = quantile(CR13butadiene2$CR, 0.975), Max = max(CR13butadiene2$CR), SD = sd(CR13butadiene2$CR), Q1 = quantile(CR13butadiene2$CR, 0.25), 
+              Q3 = quantile(CR13butadiene2$CR, 0.75))
+CR_stats
+
+
+##
+## TRICHLOROETHYLENE
+##
+set.seed(345)
+
+## ESTIMATE PARAMETERS FROM TRICHLOROETHYLENE DATA
+mu <- mean(log(dat$Trichloroethylene), na.rm = TRUE)
+sd <- sd(log(dat$Trichloroethylene), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 30/70
+sim <- con*ET*EF*ED
+IUR <- 4.8e-6 # FIXED VALUE WITH IUR = 4.8 x 10^-6
+
+## CANCER RISK PER ITERATION
+CRtrichloro2 <- as.data.frame(sim * IUR)
+names(CRtrichloro2) <- "CR"
+
+## CR STATISTICS
+mean(CRtrichloro2$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CRtrichloro2$CR >= 1e-6 & CRtrichloro2$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CRtrichloro2$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CRtrichloro2$CR), Min = min(CRtrichloro2$CR), Median = median(CRtrichloro2$CR), CI = quantile(CRtrichloro2$CR, 0.025), 
+              CI = quantile(CRtrichloro2$CR, 0.975), Max = max(CRtrichloro2$CR), SD = sd(CRtrichloro2$CR), Q1 = quantile(CRtrichloro2$CR, 0.25), 
+              Q3 = quantile(CRtrichloro2$CR, 0.75))
+CR_stats
+
+
+##
+## VINYL CHLORIDE (CONTINUOUS LIFETIME EXPOSURE FROM BIRTH)
+##
+set.seed(567)
+
+## ESTIMATE PARAMETERS FROM VINYL CHLORIDE DATA
+mu <- mean(log(dat$`Vinyl chloride`), na.rm = TRUE)
+sd <- sd(log(dat$`Vinyl chloride`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 30/70
+sim <- con*ET*EF*ED
+IUR <- 8.8e-6 # FIXED VALUE WITH IUR = 8.8 x 10^-6
+
+## CANCER RISK PER ITERATION
+CRvinylbirth2 <- as.data.frame(sim * IUR)
+names(CRvinylbirth2) <- "CR"
+
+## CR STATISTICS
+mean(CRvinylbirth2$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CRvinylbirth2$CR >= 1e-6 & CRvinylbirth2$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CRvinylbirth2$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CRvinylbirth2$CR), Min = min(CRvinylbirth2$CR), Median = median(CRvinylbirth2$CR), CI = quantile(CRvinylbirth2$CR, 0.025), 
+              CI = quantile(CRvinylbirth2$CR, 0.975), Max = max(CRvinylbirth2$CR), SD = sd(CRvinylbirth2$CR), Q1 = quantile(CRvinylbirth2$CR, 0.25), 
+              Q3 = quantile(CRvinylbirth2$CR, 0.75))
+CR_stats
+
+
+##
+## VINYL CHLORIDE (CONTINUOUS LIFETIME EXPOSURE DURING ADULTHOOD)
+##
+set.seed(456)
+
+## ESTIMATE PARAMETERS FROM VINYL CHLORIDE DATA
+mu <- mean(log(dat$`Vinyl chloride`), na.rm = TRUE)
+sd <- sd(log(dat$`Vinyl chloride`), na.rm = TRUE)
+
+## MONTE CARLO SIMULATION (1000 ITERATIONS)
+con <- rlnorm(1000, meanlog = mu, sdlog = sd)
+ET  <- runif(1000, min = 16, max = 24) # UNIFORM DISTRIBUTION WITH ET = 16 to 24 Hrs.
+ET  <- ET/24
+EF  <- 360/365
+ED  <- 30/70
+sim <- con*ET*EF*ED
+IUR <- 4.4e-6 # FIXED VALUE WITH IUR = 4.4 x 10^-6
+
+## CANCER RISK PER ITERATION
+CRvinyladult2 <- as.data.frame(sim * IUR)
+names(CRvinyladult2) <- "CR"
+
+## CR STATISTICS
+mean(CRvinyladult2$CR < 1e-6)*100 ## HOW MANY PERCENT CR < 1*10^-6?
+mean(CRvinyladult2$CR >= 1e-6 & CRvinyladult2$CR <= 1e-4)*100 ## HOW MANY PERCENT CR IN BETWEEN 1*10^-6 - 1*10^-4?
+mean(CRvinyladult2$CR > 1e-4)*100 ## HOW MANY PERCENT CR > 1*10^-4?
+CR_stats <- c(Mean = mean(CRvinyladult2$CR), Min = min(CRvinyladult2$CR), Median = median(CRvinyladult2$CR), CI = quantile(CRvinyladult2$CR, 0.025), 
+              CI = quantile(CRvinyladult2$CR, 0.975), Max = max(CRvinyladult2$CR), SD = sd(CRvinyladult2$CR), Q1 = quantile(CRvinyladult2$CR, 0.25), 
+              Q3 = quantile(CRvinyladult2$CR, 0.75))
+CR_stats
+
+
+##
+## COMBINE ALL COMPOUNDS, EXCEPT VINYL CHLORIDE (EXPOSURE DURING ADULTHOOD)
+##
+crvoc <- do.call(rbind, list(data.frame(Group = "Vinyl chloride: Child residents", CRvinylbirth1), 
+                             data.frame(Group = "Vinyl chloride: Adult residents", CRvinylbirth2), 
+                             data.frame(Group = "1,3-Butadiene: Child residents", CR13butadiene1),
+                             data.frame(Group = "1,3-Butadiene: Adult residents", CR13butadiene2),
+                             data.frame(Group = "Benzene: Child residents", CRbenzene1),
+                             data.frame(Group = "Benzene: Adult residents", CRbenzene2),
+                             data.frame(Group = "Trichloroethylene: Child residents", CRtrichloro1),
+                             data.frame(Group = "Trichloroethylene: Adult residents", CRtrichloro2)))
+names(crvoc)[] <- c("compound","cr")
+unique(crvoc$compound)
+
+compound_name <- "1,3-Butadiene: Child residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+a <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 1.2e-4)) + theme_bw(base_size = 14) + 
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 1.03e-04, y = Inf, label = "P50 == 4.81 %*% 10^{-8}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 1.03e-04, y = Inf, label = "P90 == 9.59 %*% 10^{-7}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 1.03e-04, y = Inf, label = "P95 == 2.24 %*% 10^{-6}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 1.03e-04, y = Inf, label = "P99 == 1.69 %*% 10^{-5}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_x_continuous(breaks = c(0, 3e-5, 6e-5, 9e-5, 1.2e-4), 
+                     labels = c(expression(1.7 %*% 10^-11), expression(3 %*% 10^-5), expression(6 %*% 10^-5), expression(9 %*% 10^-5), expression(1.2 %*% 10^-4))) +
+  labs(x = "Cancer Risk (Unitless)", y = "Probability") + theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "1,3-Butadiene: Adult residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+b <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 6e-4)) + theme_bw(base_size = 14) + 
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 5.15e-04, y = Inf, label = "P50 == 2.41 %*% 10^{-7}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 5.15e-04, y = Inf, label = "P90 == 4.79 %*% 10^{-6}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 5.15e-04, y = Inf, label = "P95 == 1.12 %*% 10^{-5}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 5.15e-04, y = Inf, label = "P99 == 8.49 %*% 10^{-5}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_x_continuous(breaks = c(0, 1.5e-4, 3e-4, 4.5e-4, 6e-4), 
+                     labels = c(expression(8.9 %*% 10^-11), expression(1.5 %*% 10^-4), expression(3 %*% 10^-4), expression(4.5 %*% 10^-4), expression(6 %*% 10^-4))) +
+  labs(x = "Cancer Risk (Unitless)", y = "Probability") + theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Benzene: Child residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+crvoc_cdf_sub <- crvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.15)
+c <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 6.4e-6), ylim = c(0, 0.15)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 5.5e-06, y = Inf, label = "P50 == 5.73 %*% 10^{-7}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 5.5e-06, y = Inf, label = "P90 == 1.84 %*% 10^{-6}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 5.5e-06, y = Inf, label = "P95 == 2.51 %*% 10^{-6}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 5.5e-06, y = Inf, label = "P99 == 4.55 %*% 10^{-6}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.15, 0.03), labels = function(x) sprintf("%.2f", x / 0.15)) + 
+  scale_x_continuous(breaks = c(0, 1.6e-6, 3.2e-6, 4.8e-6, 6.4e-6), 
+                     labels = c(expression(3.9 %*% 10^-8), expression(1.6 %*% 10^-6), expression(3.2 %*% 10^-6), expression(4.8 %*% 10^-6), expression(6.4 %*% 10^-6))) +
+  labs(x = "Cancer Risk (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Benzene: Adult residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+crvoc_cdf_sub <- crvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.15)
+d <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 3.2e-5), ylim = c(0, 0.15)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 2.75e-05, y = Inf, label = "P50 == 2.86 %*% 10^{-6}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 2.75e-05, y = Inf, label = "P90 == 9.19 %*% 10^{-6}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 2.75e-05, y = Inf, label = "P95 == 1.26 %*% 10^{-5}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 2.75e-05, y = Inf, label = "P99 == 2.28 %*% 10^{-5}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.15, 0.03), labels = function(x) sprintf("%.2f", x / 0.15)) + 
+  scale_x_continuous(breaks = c(0, 0.8e-5, 1.6e-5, 2.4e-5, 3.2e-5), 
+                     labels = c(expression(1.9 %*% 10^-7), expression(0.8 %*% 10^-5), expression(1.6 %*% 10^-5), expression(2.4 %*% 10^-5), expression(3.2 %*% 10^-5))) +
+  labs(x = "Cancer Risk (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))  
+  
+compound_name <- "Trichloroethylene: Child residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+crvoc_cdf_sub <- crvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.28)
+e <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0,3.6e-8), ylim = c(0, 0.28)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 3.1e-08, y = Inf, label = "P50 == 1.59 %*% 10^{-9}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 3.1e-08, y = Inf, label = "P90 == 7.09 %*% 10^{-9}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 3.1e-08, y = Inf, label = "P95 == 9.92 %*% 10^{-9}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 3.1e-08, y = Inf, label = "P99 == 1.86 %*% 10^{-8}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.28, 0.07), labels = function(x) sprintf("%.2f", x / 0.28)) + 
+  scale_x_continuous(breaks = c(0, 0.9e-8, 1.8e-8, 2.7e-8, 3.6e-8), 
+                     labels = c(expression(3.7 %*% 10^-11), expression(0.9 %*% 10^-8), expression(1.8 %*% 10^-8), expression(2.7 %*% 10^-8), expression(3.6 %*% 10^-8))) +
+  labs(x = "Cancer Risk (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Trichloroethylene: Adult residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+crvoc_cdf_sub <- crvoc_cdf_sub %>% mutate(cum_prob_scaled = cum_prob * 0.28)
+f <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob_scaled), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 2e-7), ylim = c(0, 0.28)) +
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 1.723e-07, y = Inf, label = "P50 == 7.93 %*% 10^{-9}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 1.723e-07, y = Inf, label = "P90 == 3.55 %*% 10^{-8}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 1.723e-07, y = Inf, label = "P95 == 4.96 %*% 10^{-8}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 1.723e-07, y = Inf, label = "P99 == 9.32 %*% 10^{-8}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_y_continuous(name = "Probability", breaks = seq(0, 0.28, 0.07), labels = function(x) sprintf("%.2f", x / 0.28)) + 
+  scale_x_continuous(breaks = c(0, 5e-8, 1e-7, 1.5e-7, 2e-7), 
+                     labels = c(expression(1.8 %*% 10^-10), expression(5 %*% 10^-8), expression(1 %*% 10^-7), expression(1.5 %*% 10^-7), expression(2 %*% 10^-7))) +
+  labs(x = "Cancer Risk (Unitless)") + theme_bw(base_size = 14) + 
+  theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Vinyl chloride: Child residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+g <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 1.2e-5)) + theme_bw(base_size = 14) + 
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 1.032e-05, y = Inf, label = "P50 == 1.29 %*% 10^{-8}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 1.032e-05, y = Inf, label = "P90 == 2.24 %*% 10^{-7}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 1.032e-05, y = Inf, label = "P95 == 4.61 %*% 10^{-7}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 1.032e-05, y = Inf, label = "P99 == 1.54 %*% 10^{-6}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_x_continuous(breaks = c(0, 3e-6, 6e-6, 9e-6, 1.2e-5), 
+                     labels = c(expression(6.4 %*% 10^-12), expression(3 %*% 10^-6), expression(6 %*% 10^-6), expression(9 %*% 10^-6), expression(1.2 %*% 10^-5))) +
+  labs(x = "Cancer Risk (Unitless)", y = "Probability") + theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(r = 10, t = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+compound_name <- "Vinyl chloride: Adult residents"
+crvoc_sub <- crvoc %>% filter(compound == compound_name)
+crvoc_cdf_sub <- crvoc_sub %>% arrange(cr) %>% mutate(cum_prob = row_number()/n())
+h <- ggplot(crvoc_sub, aes(x = cr)) + geom_histogram(aes(y = after_stat(count / sum(count))), bins = 50, fill = "red", color = "white", alpha = 0.7) +
+  geom_step(data = crvoc_cdf_sub, aes(y = cum_prob), color = "black", linewidth = 0.6) + coord_cartesian(xlim = c(0, 6e-5)) + theme_bw(base_size = 14) + 
+  facet_wrap(~ compound, scales = "free_y") + 
+  annotate("text", x = 5.16e-05, y = Inf, label = "P50 == 6.48 %*% 10^{-8}", vjust = 4.0, size = 7, parse = TRUE) +
+  annotate("text", x = 5.16e-05, y = Inf, label = "P90 == 1.12 %*% 10^{-6}", vjust = 5.5, size = 7, parse = TRUE) +
+  annotate("text", x = 5.16e-05, y = Inf, label = "P95 == 2.31 %*% 10^{-6}", vjust = 7.0, size = 7, parse = TRUE) +
+  annotate("text", x = 5.16e-05, y = Inf, label = "P99 == 7.71 %*% 10^{-6}", vjust = 8.5, size = 7, parse = TRUE) +
+  geom_vline(xintercept = quantile(crvoc_sub$cr, probs = c(0.50, 0.90, 0.95, 0.99), na.rm = TRUE), linetype = "dotted", linewidth = 1, color = "blue") +
+  scale_x_continuous(breaks = c(0, 1.5e-5, 3e-5, 4.5e-5, 6e-5), 
+                     labels = c(expression(3.2 %*% 10^-11), expression(1.5 %*% 10^-5), expression(3 %*% 10^-5), expression(4.5 %*% 10^-5), expression(6 %*% 10^-5))) +
+  labs(x = "Cancer Risk (Unitless)", y = "Probability") + theme(strip.text = element_text(face = "bold", size = 40), plot.margin = margin(t = 40, r = 10, b = 10, l = 10)) +
+  theme(text = element_text(size = 25)) + theme(axis.title.y = element_text(margin = margin(r = 15)), axis.ticks.length = unit(10, "pt")) + 
+  theme(text = element_text(size = 25)) + theme(axis.title.x = element_text(margin = margin(t = 15)))
+
+tiff("CR.tif", units = "in", width = 50.0, height = 25.0, res = 200)
+grid.arrange(a,c,e,g,b,d,f,h, ncol = 4)
+dev.off()
+
+###############################################################################################################################################################################
+
+
+##################################################
+## SENSITIVITY ANALYSES OF HAZARD QUOTIENT (HQ) ##
+##################################################
+
+setwd("E:/Students/MSc 2024/Natyada/Analysis")
+dat <- read.csv("VOC data.csv")
+dat$date <- as.Date(dat$date,"%Y-%m-%d")
+
+dat$time <- format(dat$date, "%Y-%m") ## CREATE ONLY MONTH AND YEAR
+dat <- aggregate(dat[,4:12], list(dat$no, dat$station, dat$time), mean, na.rm = TRUE)
+dat <- dat[order(dat$Group.1),]
+names(dat)[1:3] <- c("nstation","station","date")
+
+names(dat)[c(4,5,8,11)] <- c("Vinyl chloride","1,3-Butadiene","1,2-Dichloroethane","1,2-Dichloropropane")
+dat$date <- as.Date(paste0(dat$date, "-01"))
+
+library(MASS); library(randtoolbox)
+
+#########################
+## 1,2-DICHLOROPROPANE ##
+#########################
+
+set.seed(123)
+
+## ESTIMATE PARAMETERS FROM 1,2-DICHLOROPROPANE DATA
+mu <- mean(log(dat$`1,2-Dichloropropane`), na.rm = TRUE)
+sd <- sd(log(dat$`1,2-Dichloropropane`), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 4 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+###################
+## 1,3-BUTADIENE ##
+###################
+
+set.seed(234)
+
+## ESTIMATE PARAMETERS FROM 1,3-BUTADIENE DATA
+mu <- mean(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+sd <- sd(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 2 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+#############
+## BENZENE ##
+#############
+
+set.seed(345)
+
+## ESTIMATE PARAMETERS FROM BENZENE DATA
+mu <- mean(log(dat$Benzene), na.rm = TRUE)
+sd <- sd(log(dat$Benzene), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 30 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+#######################
+## TRICHLOROETHYLENE ##
+#######################
+
+set.seed(456)
+
+## ESTIMATE PARAMETERS FROM TRICHLOROETHYLENE DATA
+mu <- mean(log(dat$Trichloroethylene), na.rm = TRUE)
+sd <- sd(log(dat$Trichloroethylene), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 2 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+####################
+## VINYL CHLORIDE ##
+####################
+
+set.seed(567)
+
+## ESTIMATE PARAMETERS FROM VINYL CHLORIDE DATA
+mu <- mean(log(dat$`Vinyl chloride`), na.rm = TRUE)
+sd <- sd(log(dat$`Vinyl chloride`), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 100 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+#####################
+## DICHLOROMETHANE ##
+#####################
+
+set.seed(678)
+
+## ESTIMATE PARAMETERS FROM DICHLOROMETHANE DATA
+mu <- mean(log(dat$Dichloromethane), na.rm = TRUE)
+sd <- sd(log(dat$Dichloromethane), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 600 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+#########################
+## TETRACHLOROETHYLENE ##
+#########################
+
+set.seed(789)
+
+## ESTIMATE PARAMETERS FROM TETRACHLOROETHYLENE DATA
+mu <- mean(log(dat$Tetrachloroethylene), na.rm = TRUE)
+sd <- sd(log(dat$Tetrachloroethylene), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 40 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+########################
+## 1,2-DICHLOROETHANE ##
+########################
+
+set.seed(890)
+
+## ESTIMATE PARAMETERS FROM 1,2-DICHLOROETHANE DATA
+mu <- mean(log(dat$`1,2-Dichloroethane`), na.rm = TRUE)
+sd <- sd(log(dat$`1,2-Dichloroethane`), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+RfC <- 7 # ug/m3
+
+HQ_model <- function(X) {
+  C  <- X[,1]  # CONCENTRATION
+  ET <- X[,2]  # EXPOSURE TIME
+  
+  HQ <- (C * ET * EF) / RfC
+  return(HQ)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- HQ_model(A)
+YB <- HQ_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- HQ_model(A_B1)
+Y_A_B2 <- HQ_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+###############################################################################################################################################################################
+
+####################################################
+## SENSITIVITY ANALYSES FOR CARCINOGENIC RISK(CR) ##
+####################################################
+
+###################
+## 1,3-BUTADIENE ##
+###################
+
+set.seed(901)
+
+## ESTIMATE PARAMETERS FROM 1,3-BUTADIENE DATA
+mu <- mean(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+sd <- sd(log(dat$`1,3-Butadiene`), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+ED  <- 6/70
+IUR <- 3.0e-5 # FIXED VALUE WITH IUR = 3.0 x 10^-5
+
+CR_model <- function(X) {
+  C   <- X[,1]  # BENZENE CONCENTRATION
+  ET  <- X[,2]  # EXPOSURE TIME
+  
+  CR <- C * ET * EF * ED * IUR
+  return(CR)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- CR_model(A)
+YB <- CR_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- CR_model(A_B1)
+Y_A_B2 <- CR_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+#############
+## BENZENE ##
+#############
+
+set.seed(902)
+
+## ESTIMATE PARAMETERS FROM BENZENE DATA
+mu <- mean(log(dat$Benzene), na.rm = TRUE)
+sd <- sd(log(dat$Benzene), na.rm = TRUE)
+
+## CONSTANTS
+EF <- 360/365
+ED <- 6/70
+
+CR_model <- function(X) {
+  C   <- X[,1]  # BENZENE CONCENTRATION
+  ET  <- X[,2]  # EXPOSURE TIME
+  IUR <- X[,3]  # INHALATION UNIT RISK
+  
+  CR <- C * ET * EF * ED * IUR
+  return(CR)
+}
+
+## GENERATE SOBOL SEQUENCES
+N <- 10000
+U <- sobol(n = 2 * N, dim = 3, scrambling = 1, seed = 123)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## IUR (Uniform range)
+A[, 3] <- 2.2e-6 + A[,3] * (7.8e-6 - 2.2e-6)
+B[, 3] <- 2.2e-6 + B[,3] * (7.8e-6 - 2.2e-6)
+
+## MODEL EVALUATION
+YA <- CR_model(A)
+YB <- CR_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+A_B3 <- A; A_B3[, 3] <- B[, 3]  # IUR
+
+Y_A_B1 <- CR_model(A_B1)
+Y_A_B2 <- CR_model(A_B2)
+Y_A_B3 <- CR_model(A_B3)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C   <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET  <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+S_IUR <- 1 - mean((YB - Y_A_B3)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C   <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET  <- mean((YA - Y_A_B2)^2) / (2 * VY)
+ST_IUR <- mean((YA - Y_A_B3)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration","Exposure Time","IUR"), First_Order = c(S_C, S_ET, S_IUR), Total_Order = c(ST_C, ST_ET, ST_IUR))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+sd(A[,3]) / mean(A[,3])   # IUR CV
+
+#######################
+## TRICHLOROETHYLENE ##
+#######################
+
+set.seed(903)
+
+## ESTIMATE PARAMETERS FROM TRICHLOROETHYLENE DATA
+mu <- mean(log(dat$Trichloroethylene), na.rm = TRUE)
+sd <- sd(log(dat$Trichloroethylene), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+ED  <- 6/70
+IUR <- 4.8e-6 # FIXED VALUE WITH IUR = 4.8 x 10^-6
+
+CR_model <- function(X) {
+  C   <- X[,1]  # BENZENE CONCENTRATION
+  ET  <- X[,2]  # EXPOSURE TIME
+  
+  CR <- C * ET * EF * ED * IUR
+  return(CR)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- CR_model(A)
+YB <- CR_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- CR_model(A_B1)
+Y_A_B2 <- CR_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+####################
+## VINYL CHLORIDE ##
+####################
+
+set.seed(904)
+
+## ESTIMATE PARAMETERS FROM VINYL CHLORIDE DATA
+mu <- mean(log(dat$`Vinyl chloride`), na.rm = TRUE)
+sd <- sd(log(dat$`Vinyl chloride`), na.rm = TRUE)
+
+## CONSTANTS
+EF  <- 360/365
+ED  <- 6/70
+IUR <- 8.8e-6 # FIXED VALUE WITH IUR = 8.8 x 10^-6
+
+CR_model <- function(X) {
+  C   <- X[,1]  # BENZENE CONCENTRATION
+  ET  <- X[,2]  # EXPOSURE TIME
+  
+  CR <- C * ET * EF * ED * IUR
+  return(CR)
+}
+
+## GENERATE SOBOL SEQUENCES
+N   <- 10000
+U   <- sobol(n = 2 * N, dim = 2, scrambling = 1)
+
+A <- U[1:N, ]
+B <- U[(N + 1):(2 * N), ]
+
+## TRANSFORM INPUT DISTRIBUTIONS
+## Concentration ~ Lognormal
+A[, 1] <- qlnorm(A[, 1], meanlog = mu, sdlog = sd)
+B[, 1] <- qlnorm(B[, 1], meanlog = mu, sdlog = sd)
+
+## Exposure Time ~ Uniform(16/24, 24/24)
+A[, 2] <- 16/24 + A[, 2] * (1 - 16/24)
+B[, 2] <- 16/24 + B[, 2] * (1 - 16/24)
+
+## MODEL EVALUATION
+YA <- CR_model(A)
+YB <- CR_model(B)
+
+## HYBRID MATRICES
+A_B1 <- A; A_B1[, 1] <- B[, 1]  # CONCENTRATION FROM B
+A_B2 <- A; A_B2[, 2] <- B[, 2]  # ET FROM B
+
+Y_A_B1 <- CR_model(A_B1)
+Y_A_B2 <- CR_model(A_B2)
+
+## SOBOL INDICES (JANSEN ESTIMATORS)
+VY <- var(YA)
+
+## FIRST-ORDER SOBOL INDICES
+S_C  <- 1 - mean((YB - Y_A_B1)^2) / (2 * VY)
+S_ET <- 1 - mean((YB - Y_A_B2)^2) / (2 * VY)
+
+## TOTAL-ORDER SOBOL INDICES
+ST_C  <- mean((YA - Y_A_B1)^2) / (2 * VY)
+ST_ET <- mean((YA - Y_A_B2)^2) / (2 * VY)
+
+Sobol_results <- data.frame(Parameter = c("Concentration", "Exposure Time"), First_Order = c(S_C, S_ET), Total_Order = c(ST_C, ST_ET))
+print(Sobol_results)
+
+sd(A[,1]) / mean(A[,1])   # CONCENTRATION CV
+sd(A[,2]) / mean(A[,2])   # EXPOSURE TIME CV
+
+###############################################################################################################################################################################
+
+######################
+## SENSITIVITY PLOT ##
+######################
+
+library(readxl); library(ggplot2); library(gridExtra)
+
+setwd("E:/Students/MSc 2024/Natyada/Analysis")
+dat <- read_excel("Results.xlsx", sheet = 5)[,1:4]
+names(dat)[4] <- "Index"
+dat$Risk <- factor(dat$Risk, levels = c("HQ","CR"), labels = c("Hazard Quotient (HQ)","Cancer Risk (CR)")) ## ORDER ESTIMATED RISK BY WHAT WE HAD IN THE DATASET
+
+tiff("Sensitivity.tif", units = "in", width = 35.0, height = 30.0, res = 200)
+dat$VOCs = factor(dat$VOCs, levels = rev(unique(dat$VOCs))) ## INVERSE ORDER OF VOC COMPOUNDS BY WHAT WE HAD IN THE DATASET
+ggplot(dat, aes(x = Index, y = VOCs, fill = Variable)) + geom_col(position = position_dodge(width = 0.7), width = 0.6) + 
+  facet_wrap(~ Risk, ncol = 1, scales = "free_y", strip.position = "right") + 
+  labs(x = "First-order sensitivity index", y = NULL, fill = "Parameters") + theme_bw(base_size = 13) +
+  theme(strip.text = element_text(face = "bold", size = 35), legend.position = "top", panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
+        axis.title = element_text(size = 30), axis.text = element_text(size = 25), legend.title = element_text(size = 32, margin = margin(r = 50)), 
+        legend.text = element_text(size = 27, margin = margin(r = 50)), legend.key.width = unit(2, "cm"), axis.ticks.length = unit(10, "pt"), 
+        axis.title.x = element_text(margin = margin(t = 12)), axis.text.x = element_text(margin = margin(t = 10)),
+        axis.text.y = element_text(margin = margin(r = 10)))
+dev.off()
+
+###############################################################################################################################################################################
